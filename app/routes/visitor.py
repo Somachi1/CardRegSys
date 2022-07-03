@@ -12,7 +12,7 @@ router = APIRouter(
 
 
 @router.get("/ip_counter/{lassra_id}")
-def visitor_get_status(request: Request, lassra_id: int, db: Session = Depends(get_db), limit: int=3):
+def visitor_get_status(request: Request, lassra_id: int, db: Session = Depends(get_db)):
     
     host = request.client.host
     ip_counter = db.query(models.Visits).filter(models.Visits.visit_ip_address==host).all()
