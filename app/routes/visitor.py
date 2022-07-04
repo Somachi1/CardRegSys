@@ -37,7 +37,7 @@ def visitor_get_status(request: Request, lassra_id: int, db: Session = Depends(g
     
 
 
-    if visitor_count ==3 and today_date == created_date:
+    if visitor_count > 3 and today_date == created_date:
         raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You have surpsssed the limit for searches today")
 
     user_id = db.query(models.CardInfo).filter(models.CardInfo.lassra_id==lassra_id).first()
