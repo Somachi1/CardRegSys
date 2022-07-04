@@ -17,25 +17,27 @@ router = APIRouter(
 @router.get("/ip_counter/{lassra_id}")
 def visitor_get_status(request: Request, lassra_id: int, db: Session = Depends(get_db)):
     
-    midnight = datetime.combine(datetime.today(), time.min)
-
     host = request.client.host
     db_host = models.Visits(visit_ip_address=host)
     db.add(db_host)
     db.commit()
     db.refresh(db_host)
+
     visitor_count= db.query(models.Visits).filter(models.Visits.visit_ip_address==host).count()
 
     visitor = db.query(models.Visits).filter(models.Visits.visit_ip_address==host).first()
-    visitor_time = visitor.created_at
+    
 
     if visitor_count > 2:
         raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You have surpsssed the limit for searches today")
-
     user_id = db.query(models.CardInfo).filter(models.CardInfo.lassra_id==lassra_id).first()
+
     if not user_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Lassra ID {lassra_id}, was not found")  
 
+    return {"Lassra_id": user_id.lassra_id,
+                "status": user_id.card_status,
+                "status_description": user_id.status_descr}
     
         
 
