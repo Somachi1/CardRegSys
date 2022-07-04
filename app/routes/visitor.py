@@ -17,25 +17,28 @@ router = APIRouter(
 @router.get("/ip_counter/{lassra_id}")
 def visitor_get_status(request: Request, lassra_id: int, db: Session = Depends(get_db)):
     host = request.client.host
-    visitor_count= db.query(models.Visits).filter(models.Visits.visit_ip_address==host).count()
-    visitor = db.query(models.Visits).filter(models.Visits.visit_ip_address==host).first()
-    created_at = visitor.created_at
-    print(created_at)
-
-    today_date = date.today()
-    
-    dt_created_at = datetime.fromtimestamp(created_at).date()
-    
-
-
-    if visitor_count ==3 and today_date == dt_created_at:
-        raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You have surpsssed the limit for searches today")
-    
-
     db_host = models.Visits(visit_ip_address=host)
     db.add(db_host)
     db.commit()
     db.refresh(db_host)
+    visitor_count= db.query(models.Visits).filter(models.Visits.visit_ip_address==host).count()
+    visitor = db.query(models.Visits).filter(models.Visits.visit_ip_address==host).first()
+
+    created_at = visitor.created_at
+    
+    today_date = date.today()
+    created = datetime.strftime(created_at, "%d%b%Y%H%M%S")
+    created_at_date = datetime.strptime(created, 
+                                 "%d%b%Y%H%M%S")
+    created_date = created_at_date.date()
+    
+
+    
+    
+
+
+    if visitor_count ==3 and today_date == created_date:
+        raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You have surpsssed the limit for searches today")
 
     user_id = db.query(models.CardInfo).filter(models.CardInfo.lassra_id==lassra_id).first()
 
