@@ -16,21 +16,22 @@ router = APIRouter(
 
 @router.get("/ip_counter/{lassra_id}")
 def visitor_get_status(request: Request, lassra_id: int, db: Session = Depends(get_db)):
-    
+    host = request.client.host
     visitor_count= db.query(models.Visits).filter(models.Visits.visit_ip_address==host).count()
     visitor = db.query(models.Visits).filter(models.Visits.visit_ip_address==host).first()
     created_at = visitor.created_at
     print(created_at)
+
     today_date = date.today()
     
-    dt_created_at = datetime.fromtimestamp(created_at)
-        
+    dt_created_at = datetime.fromtimestamp(created_at).date()
+    
 
 
-    if visitor_count ==3:
+    if visitor_count ==3 and today_date == dt_created_at:
         raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You have surpsssed the limit for searches today")
     
-    host = request.client.host
+
     db_host = models.Visits(visit_ip_address=host)
     db.add(db_host)
     db.commit()
