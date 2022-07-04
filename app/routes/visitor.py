@@ -3,7 +3,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app import models
 from app.database import get_db
-from datetime import datetime, time
+from datetime import datetime, time, date
 import time
 
 
@@ -18,9 +18,15 @@ router = APIRouter(
 def visitor_get_status(request: Request, lassra_id: int, db: Session = Depends(get_db)):
     
     visitor_count= db.query(models.Visits).filter(models.Visits.visit_ip_address==host).count()
-
     visitor = db.query(models.Visits).filter(models.Visits.visit_ip_address==host).first()
+    created_at = visitor.created_at
+    print(created_at)
+    today_date = date.today()
     
+    dt_created_at = datetime.fromtimestamp(created_at)
+        
+
+
     if visitor_count ==3:
         raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You have surpsssed the limit for searches today")
     
